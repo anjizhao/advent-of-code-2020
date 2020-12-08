@@ -1,7 +1,7 @@
 import re
 
 
-with open('input.txt', 'r') as f: 
+with open('input.txt', 'r') as f:
     input_text = f.read()
 
 passports = input_text.strip().split('\n\n')
@@ -31,7 +31,7 @@ def hgt_valid(x):
             hgt = int(split_list[0])
             if hgt >= 150 and hgt <= 193:
                 return True
-    elif 'in' in x: 
+    elif 'in' in x:
         split_list = x.split('in')
         if len(split_list) == 2 and split_list[0].isdigit():
             hgt = int(split_list[0])

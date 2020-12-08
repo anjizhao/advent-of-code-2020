@@ -1,6 +1,6 @@
 
 
-with open('input.txt', 'r') as f: 
+with open('input.txt', 'r') as f:
     lines = f.readlines()
 
 lines = [l.strip() for l in lines]
@@ -10,7 +10,7 @@ lines = [l.strip() for l in lines]
 # construct rules dict
 rules = {}
 
-for l in lines: 
+for l in lines:
     color, contents_str = l.split(' bags contain ')
     if 'no other bags' in contents_str:
         rules[color] = []
@@ -18,7 +18,7 @@ for l in lines:
     # split str into each color bags inside
     contents_list = contents_str.replace(' bag.', '').replace(' bags.', '').replace('bag,', 'bags,').split(' bags, ')
     color_rules = []
-    for c in contents_list: 
+    for c in contents_list:
         content_count, content_color = c.split(' ', maxsplit=1)
         color_rules.append({'count': int(content_count), 'color': content_color})
     rules[color] = color_rules
@@ -42,7 +42,7 @@ def check_contains_gold(outer_color):
     if outer_color in eventually_contains_gold:
         # skip repeat checks
         return True
-    for content in rules[outer_color]: 
+    for content in rules[outer_color]:
         if content['color'] == 'shiny gold':
             eventually_contains_gold.add(outer_color)
             return True
@@ -52,12 +52,12 @@ def check_contains_gold(outer_color):
     return False
 
 # test_colors = ['muted white', 'bright salmon', 'drab brown', 'dark salmon']
-# 
+#
 # for c in test_colors:
 #     print('checking {}'.format(c))
 #     check_contains_gold(c)
 #     print(eventually_contains_gold)
-# 
+#
 # print('final set:')
 # print(eventually_contains_gold)
 

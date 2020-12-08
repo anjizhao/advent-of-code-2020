@@ -1,6 +1,6 @@
 
 
-with open('input.txt', 'r') as f: 
+with open('input.txt', 'r') as f:
     lines = f.readlines()
 
 lines = [l.strip() for l in lines]
@@ -8,7 +8,7 @@ lines = [l.strip() for l in lines]
 # construct rules dict
 rules = {}
 
-for l in lines: 
+for l in lines:
     color, contents_str = l.split(' bags contain ')
     if 'no other bags' in contents_str:
         rules[color] = []
@@ -16,7 +16,7 @@ for l in lines:
     # split str into each color bags inside
     contents_list = contents_str.replace(' bag.', '').replace(' bags.', '').replace('bag,', 'bags,').split(' bags, ')
     color_rules = []
-    for c in contents_list: 
+    for c in contents_list:
         content_count, content_color = c.split(' ', maxsplit=1)
         color_rules.append({'count': int(content_count), 'color': content_color})
     rules[color] = color_rules
@@ -42,8 +42,8 @@ def count_bags_inside(outer_color):
 
 
 # test_colors = ['dim salmon', 'light aqua', 'dim maroon']
-# 
-# for c in test_colors: 
+#
+# for c in test_colors:
 #     print('test {}: {} bags inside'.format(c, count_bags_inside(c)))
 
 print(count_bags_inside('shiny gold'))

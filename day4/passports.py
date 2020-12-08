@@ -1,5 +1,5 @@
 
-with open('input.txt', 'r') as f: 
+with open('input.txt', 'r') as f:
     input_text = f.read()
 
 passports = input_text.strip().split('\n\n')

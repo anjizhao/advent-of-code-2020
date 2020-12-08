@@ -9,7 +9,7 @@ instructions = []
 
 for l in lines:
     operation, argument_str = l.split(' ')
-    instructions.append((operation, int(argument_str)))    
+    instructions.append((operation, int(argument_str)))
 
 # print(instructions[:2])
 
@@ -18,7 +18,7 @@ def run_with_one_operation_swap(swap_index):
     index = 0
     accumulator = 0
     visited = set()
-    
+
     for i in range(10000):
     # while True:
         if index in visited:
@@ -45,7 +45,7 @@ def run_with_one_operation_swap(swap_index):
             continue
 
 for i in range(len(instructions)):
-    if instructions[i][0] == 'acc': 
+    if instructions[i][0] == 'acc':
         continue
     result = run_with_one_operation_swap(i)
     if result:

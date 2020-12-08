@@ -9,7 +9,7 @@ instructions = []
 
 for l in lines:
     operation, argument_str = l.split(' ')
-    instructions.append((operation, int(argument_str)))    
+    instructions.append((operation, int(argument_str)))
 
 # print(instructions[:2])
 

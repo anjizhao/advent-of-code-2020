@@ -1,5 +1,5 @@
 
-with open('input.txt', 'r') as f: 
+with open('input.txt', 'r') as f:
     lines = f.readlines()
 
 items = [l.strip() for l in lines]
@@ -14,17 +14,17 @@ def parse_item(item):
 def is_valid(parsed):
     count = parsed['password'].count(parsed['letter'])
     # print(count)
-    if (count < parsed['min']) or (count > parsed['max']): 
+    if (count < parsed['min']) or (count > parsed['max']):
         return False
     return True
 
 # print(is_valid(parse_item(items[0])))
 
-def check_item(item): 
+def check_item(item):
     return is_valid(parse_item(item))
 
 
-checked = [check_item(i) for i in items] 
+checked = [check_item(i) for i in items]
 
 print(sum(checked))
 
