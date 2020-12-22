@@ -149,5 +149,6 @@ def count_matching_messages(rules, messages, rule_number=0):
 
 assert count_matching_messages(test_rules_1, test_messages_list_1) == 2
 
+
 result = count_matching_messages(rules, messages_list)
 print(result)
