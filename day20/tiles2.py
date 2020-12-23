@@ -23,7 +23,8 @@ def read_input(input_text):
         tile_number = int(tile_number)
         image_rows = image_str.split('\n')
         image_array = np.array([list(s) for s in image_rows])
-        tiles_dict[tile_number] = (image_array == '#').astype(int)
+        tiles_dict[tile_number] = image_array
+        # tiles_dict[tile_number] = (image_array == '#').astype(int)
     return tiles_dict
 
 
@@ -71,7 +72,6 @@ def find_corners(border_matches):
 def _base_transform(corner_id):
     return {
         'tile_id': corner_id,
-        # 'flip_h': False,
         'flip_v': False,
         'rot_90': 0,
     }
@@ -79,17 +79,12 @@ def _base_transform(corner_id):
 
 def add_first_corner(border_matches, corner_id, tile_arrangement):
     corner_piece_matches = {
-        k: v for k, v in border_matches.items()
-        if k[0] == corner_id
+        k: v for k, v in border_matches.items() if k[0] == corner_id
     }
-    # print(corner_piece_matches)
-    # {(1951, 'right'): ((2311, 'left'), False), (1951, 'top'): ((2729, 'bottom'), False)}  # noqa
 
     # put first corner piece in top left of array.
-    # flip/rotate it so matched edges face in
-    # want a right and bottom
+    # flip/rotate it so matched edges face in (we want a right and bottom)
     inner_faces = [k[1] for k in corner_piece_matches.keys()]
-    # print(inner_faces)
 
     transformations = _base_transform(corner_id)
 
@@ -103,13 +98,6 @@ def add_first_corner(border_matches, corner_id, tile_arrangement):
     return transformations
 
 
-# FLIP_H = {
-#     'left': 'right',
-#     'right': 'left',
-# }
-# WE ARE GETTING RID OF FLIP_H!!!
-# flip_h is the same as flip_v + 180deg rotation
-
 FLIP_V = {
     'top': 'bottom',
     'bottom': 'top',
@@ -121,7 +109,6 @@ ROT_90 = {
     'right': 'top',
     'top': 'left',
 }
-
 
 
 def apply_transformation_to_edge_tuple(edge_tuple, t_dict):
@@ -139,10 +126,6 @@ def add_right(tiles, index, adjacent_tile_info, already_reversed):
     tile_info, adjacent_reversed = adjacent_tile_info
     reverse = already_reversed == adjacent_reversed
     adjacent_tile_id, adjacent_face = tile_info
-    # print('adjacent_tile_id', adjacent_tile_id)
-    # print('already_reversed', already_reversed)
-    # print('adjacent_reversed', adjacent_reversed)
-    # print('reverse', reverse)
     transformations = _base_transform(adjacent_tile_id)
     # want to transform so the face becomes left
     if adjacent_face == 'right':
@@ -160,14 +143,12 @@ def add_right(tiles, index, adjacent_tile_info, already_reversed):
     elif adjacent_face == 'bottom':
         transformations['rot_90'] = 3
         if reverse:
-            # we flip before rotation, so 'bottom' should be flipped first
             transformations['flip_v'] = True
             transformations['rot_90'] = 1
     if tiles[index[0], index[1] + 1] is not None:
         assert tiles[index[0], index[1] + 1] == transformations
     else:
         tiles[index[0], index[1] + 1] = transformations
-        # print('added', transformations, 'at', index[0], index[1] + 1)
     return transformations
 
 
@@ -189,7 +170,6 @@ def add_below(tiles, index, adjacent_tile_info, already_reversed):
     elif adjacent_face == 'right':
         transformations['rot_90'] = 1
         if reverse:
-            # we flip before rotation, so 'right' should be flipped first
             transformations['flip_v'] = True
     elif adjacent_face == 'left':
         transformations['rot_90'] = 3
@@ -199,33 +179,17 @@ def add_below(tiles, index, adjacent_tile_info, already_reversed):
         assert tiles[index[0] + 1, index[1]] == transformations
     else:
         tiles[index[0] + 1, index[1]] = transformations
-        # print('added', transformations, 'at', index[0] + 1, index[1])
     return transformations
 
 
 def add_adjacent_tiles(border_matches, tiles, index):
     t = tiles[index]
-    # print('\nindex', index)
-    # print('t', t)
-
-    # test = tiles.astype(bool).astype(int)
-    # test[index] = 8
-    # print(test)
     t_edges = {
         k: v for k, v in border_matches.items()
         if k[0] == t['tile_id']
     }
-    # for k, v in t_edges.items():
-    #     print(k, ':', v)
-    # {(1951, 'right'): ((2311, 'left'), False), (1951, 'top'): ((2729, 'bottom'), False)}  # noqa
     for k, v in t_edges.items():
-        # print(k, ':', v)
-        # example (1951, 'right') : ((2311, 'left'), False)
         transformed = apply_transformation_to_edge_tuple(k, t)
-        # print('transformed', transformed)
-        # if index == (2, 2):
-        #     print(tiles)
-        #     return
 
         if transformed[1] == 'right':
             next_tile_index = (index[0], index[1] + 1)
@@ -246,7 +210,7 @@ def add_adjacent_tiles(border_matches, tiles, index):
             add_adjacent_tiles(border_matches, tiles, next_tile_index)
 
 
-def build_picture(border_matches, corner_id, n):
+def build_grid(border_matches, corner_id, n):
     tile_arrangement = np.empty((n, n), dtype=object)
     add_first_corner(border_matches, corner_id, tile_arrangement)
     index = (0, 0)
@@ -256,19 +220,126 @@ def build_picture(border_matches, corner_id, n):
 
 
 tiles_dict = read_input(input_text)
-# print(tiles_dict)
 all_borders = get_borders(tiles_dict)
-# for k in list(all_borders.keys())[:3]:
-#     print(k, all_borders[k])
+grid_dimension = int(math.sqrt(len(tiles_dict)))
 
 matches = match_borders(all_borders)
-print(len(matches))
-# print(matches)
 
 corners = find_corners(matches)
-print(corners)
-print(np.prod(corners))
+print('corners', corners)
+print('product', np.prod(corners))
 
 
-r = build_picture(matches, corners[0], int(math.sqrt(len(tiles_dict))))
-# print(r)
+tile_arrangement = build_grid(matches, corners[0], grid_dimension)
+
+# print(tile_arrangement)
+
+example_tile = tiles_dict[corners[0]]
+# print(example_tile)
+
+tile_dimension = example_tile.shape[0]
+
+
+def apply_transformation_to_tile(tile, transformations):
+    transformed = tile
+    if transformations['flip_v']:
+        transformed = np.flipud(transformed)
+    for i in range(transformations['rot_90']):
+        transformed = np.rot90(transformed)
+    return transformed
+
+
+def make_full_image(tile_arrangement, tiles_dict):
+    # get size of full image
+    sample_tile = next(iter(tiles_dict.values()))
+    tile_dimension = sample_tile.shape[0] - 2   # remove tile borders
+    grid_dimension = tile_arrangement.shape[0]
+    image_dim = grid_dimension * tile_dimension
+    image_arr = np.zeros((image_dim, image_dim), dtype=str)
+
+    for i in range(tile_arrangement.shape[0]):
+        i_image = i * tile_dimension
+        for j in range(tile_arrangement.shape[1]):
+            j_image = j * tile_dimension
+
+            tile_info = tile_arrangement[i, j]
+            tile = tiles_dict[tile_info['tile_id']]
+            # apply transformations
+            transformed_tile = apply_transformation_to_tile(tile, tile_info)
+
+            image_arr[
+                i_image:i_image + tile_dimension,
+                j_image:j_image + tile_dimension
+            ] = transformed_tile[
+                1:tile_dimension + 1, 1:tile_dimension + 1
+            ]
+
+    return image_arr
+
+
+image = make_full_image(tile_arrangement, tiles_dict)
+
+def display_image(image_arr):
+    for row in image_arr:
+        print(''.join([str(r) for r in row]))
+
+# display_image(image)
+
+monster_str = '                  # \n#    ##    ##    ###\n #  #  #  #  #  #   '  # noqa
+monster_arr = np.array([list(i) for i in monster_str.split('\n')])
+
+print('monster array shape', monster_arr.shape)
+# display_image(monster_arr)
+
+
+def check_slices_in_image(image, monster_shape, monster_indices):
+    count_monsters = 0
+    for i in range(image.shape[0] - monster_shape[0]):
+        for j in range(image.shape[1] - monster_shape[1]):
+            img_slice = image[i:i + monster_shape[0], j:j + monster_shape[1]]
+            # if i == 2:
+            #     # print(i, j)
+            #     display_image(img_slice)
+            if all(img_slice[monster_indices] == '#'):
+                count_monsters += 1
+    return count_monsters
+
+
+def count_monsters_in_image(image, monster_shape, monster_indices):
+    # try all rotations, then flip v & try all rotations until we find a match
+    # for flip in range(2):
+    for flip in [1]:
+        new_image = image
+        if flip:
+            new_image = np.flipud(new_image)
+        # for rotations in range(4):  # try rotating 0, 1, 2, 3 times
+        for rotations in [3]:  # try rotating 0, 1, 2, 3 times
+            for i in range(rotations):
+                new_image = np.rot90(new_image)
+            count_monsters = check_slices_in_image(
+                new_image, monster_shape, monster_indices,
+            )
+            if count_monsters:
+                return count_monsters
+
+
+def find_monsters(image, monster_arr):
+    monster_shape = monster_arr.shape
+    monster_indices = np.where(monster_arr == '#')
+    count_monsters = count_monsters_in_image(
+        image, monster_shape, monster_indices)
+    return count_monsters
+
+
+count_monsters = find_monsters(image, monster_arr)
+print('count_monsters:', count_monsters)
+
+filled_tiles_in_monster = (monster_arr == '#').sum()
+filled_tiles_in_image = (image == '#').sum()
+
+print('filled_tiles_in_monster', filled_tiles_in_monster)
+print('filled_tiles_in_image', filled_tiles_in_image)
+print(
+    'non-monster tiles',
+    filled_tiles_in_image - (filled_tiles_in_monster * count_monsters)
+)
